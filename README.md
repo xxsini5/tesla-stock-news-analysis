@@ -1,3 +1,7 @@
+## 대시보드 바로가기
+
+[Streamlit 대시보드 보기](https://tesla-stock-news-analysis-jbkagvqqtu4lbydrfw6kta.streamlit.app/)
+
 # Tesla 주가·뉴스 분석 및 다음 거래일 방향성 예측
 
 Tesla 주가 데이터와 Tesla·Elon Musk 관련 뉴스 데이터를 결합하여  
