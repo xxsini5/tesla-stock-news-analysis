@@ -5,6 +5,7 @@
 import streamlit as st
 import pandas as pd
 
+from io import StringIO
 from pathlib import Path
 from xgboost import XGBClassifier
 
@@ -281,6 +282,13 @@ BASELINE_ACCURACY = 0.544643
 # 7. 사이드바
 # ============================================================
 
+
+# Saved outputs from horizon_experiment_results.zip; no fitting occurs in the app.
+HORIZON_CSV = {'split_summary.csv': 'Horizon,Split,Rows,Start_Date,End_Date,Latest_Label_Date,Up_Ratio\n1,Train,513,2023-01-17,2025-01-31,2025-02-03,0.52046783625731\n1,Validation,106,2025-02-10,2025-07-14,2025-07-15,0.49056603773584906\n1,Test,108,2025-07-22,2025-12-22,2025-12-23,0.5648148148148148\n5,Train,513,2023-01-17,2025-01-31,2025-02-07,0.5165692007797271\n5,Validation,106,2025-02-10,2025-07-14,2025-07-21,0.46226415094339623\n5,Test,108,2025-07-22,2025-12-22,2025-12-30,0.6203703703703703\n', 'validation_results.csv': 'Horizon,Feature_Set,Model,Accuracy,Balanced_Accuracy,Macro_F1,ROC_AUC\n1,기술지표만,Logistic Regression,0.4811320754716981,0.4821937321937322,0.47997502452947993,0.48753561253561256\n1,기술지표만,Random Forest,0.5094339622641509,0.5113960113960114,0.5050287356321839,0.5341880341880342\n1,기술지표만,XGBoost,0.5471698113207547,0.5480769230769231,0.546524064171123,0.561965811965812\n1,기술지표+뉴스감성,Logistic Regression,0.5094339622641509,0.5081908831908832,0.5066237021124239,0.516025641025641\n1,기술지표+뉴스감성,Random Forest,0.4811320754716981,0.4843304843304843,0.46743400018269843,0.4946581196581197\n1,기술지표+뉴스감성,XGBoost,0.4811320754716981,0.4825498575498576,0.47885939036381514,0.5277777777777778\n5,기술지표만,Logistic Regression,0.5754716981132075,0.575187969924812,0.5745250200695746,0.5896885069817401\n5,기술지표만,Random Forest,0.5566037735849056,0.554779806659506,0.5546616608563512,0.6015037593984963\n5,기술지표만,XGBoost,0.5849056603773585,0.5782312925170068,0.577536231884058,0.610812746151092\n5,기술지표+뉴스감성,Logistic Regression,0.6320754716981132,0.6278195488721805,0.6280701754385964,0.619405656999642\n5,기술지표+뉴스감성,Random Forest,0.5754716981132075,0.5723236663086287,0.5723890632003585,0.585750089509488\n5,기술지표+뉴스감성,XGBoost,0.5849056603773585,0.5782312925170068,0.577536231884058,0.5782312925170068\n', 'validation_news_effect.csv': 'Horizon,Model,기술지표+뉴스감성,기술지표만,News_Effect_pp\n1,Logistic Regression,0.5081908831908832,0.4821937321937322,2.5997150997151053\n1,Random Forest,0.4843304843304843,0.5113960113960114,-2.7065527065527117\n1,XGBoost,0.4825498575498576,0.5480769230769231,-6.552706552706555\n5,Logistic Regression,0.6278195488721805,0.575187969924812,5.263157894736848\n5,Random Forest,0.5723236663086287,0.554779806659506,1.754385964912275\n5,XGBoost,0.5782312925170068,0.5782312925170068,0.0\n', 'test_results.csv': 'Horizon,Feature_Set,Model,Validation_BA,Test_N,Accuracy,Balanced_Accuracy,Macro_F1,ROC_AUC,BA_Delta_vs_Baseline_pp\n1,다수 클래스 기준 모델,DummyClassifier,,108,0.5648148148148148,0.5,0.3609467455621302,0.5,0.0\n1,기술지표만,XGBoost,0.5480769230769231,108,0.5277777777777778,0.5160446459713987,0.5157802197802197,0.5497035228461807,1.6044645971398652\n1,기술지표+뉴스감성,Logistic Regression,0.5081908831908832,108,0.6018518518518519,0.584059993024067,0.5829366861248316,0.565050575514475,8.405999302406697\n5,다수 클래스 기준 모델,DummyClassifier,,108,0.6203703703703703,0.5,0.38285714285714284,0.5,0.0\n5,기술지표만,XGBoost,0.5782312925170068,108,0.6296296296296297,0.6257735711685475,0.6190476190476191,0.6665453221696396,12.577357116854749\n5,기술지표+뉴스감성,Logistic Regression,0.6278195488721805,108,0.5833333333333334,0.5364033491081179,0.5344381645751508,0.6068438296323262,3.6403349108117933\n'}
+
+def horizon_table(name):
+    return pd.read_csv(StringIO(HORIZON_CSV[name]))
+
 st.sidebar.title(
     "Tesla Analysis"
 )
@@ -292,6 +300,7 @@ page = st.sidebar.radio(
         "주가 분석",
         "뉴스 분석",
         "예측 모델 결과",
+        "추가 실험: 1·5거래일",
         "분석의 한계"
     ]
 )
@@ -307,7 +316,7 @@ st.sidebar.write(
 )
 
 st.sidebar.caption(
-    "최종 모델"
+    "기존 1거래일 배포 모델"
 )
 
 st.sidebar.write(
@@ -325,7 +334,7 @@ st.title(
 
 st.caption(
     "테슬라 주가 변동과 뉴스 감성·키워드 분석 및 "
-    "다음 거래일 방향성 예측"
+    "1·5거래일 방향성 예측 실험"
 )
 
 
@@ -343,8 +352,9 @@ if page == "프로젝트 개요":
         """
         Tesla 주가 데이터와 Tesla·Elon Musk 관련 뉴스 데이터를
         결합하여 주가 변동과 뉴스의 연관성을 분석하고,
-        당일 정보를 활용해 다음 거래일의 상승·하락 방향을
-        예측한 프로젝트입니다.
+        다음 거래일의 상승·비상승 방향을 예측한 프로젝트입니다.
+        후속 실험에서는 동일한 입력 날짜로 1·5거래일 예측을 비교했습니다.
+        보합은 비상승에 포함합니다.
         """
     )
 
@@ -385,7 +395,7 @@ if page == "프로젝트 개요":
     with col4:
 
         st.metric(
-            "최종 선택 모델",
+            "기존 선택 모델",
             "XGBoost"
         )
 
@@ -501,7 +511,7 @@ if page == "프로젝트 개요":
 
     st.success(
         "전체 거래일의 95.33%에서 최소 1건 이상의 뉴스가 확인되어 "
-        "뉴스가 특정 날짜에만 집중된 구조는 아닌 것으로 확인했습니다."
+        "거래일별 확보율은 높았습니다. 다만 개별 이벤트·키워드의 등장 시점은 별도로 봐야 합니다."
     )
 
     # --------------------------------------------------------
@@ -547,6 +557,9 @@ if page == "프로젝트 개요":
         **7. 최종 모델 선택 및 평가**  
         검증 데이터의 균형 정확도를 기준으로 모델을 선택한 뒤
         테스트 데이터에서 일반화 성능 확인
+
+        **8. 추가 실험**  
+        같은 입력일을 사용해 1·5거래일 예측 비교. 기술지표와 뉴스 포함 조합을 별도로 평가
         """
     )
 
@@ -1479,7 +1492,7 @@ elif page == "뉴스 분석":
 elif page == "예측 모델 결과":
 
     st.header(
-        "예측 모델 결과"
+        "기존 실험: 다음 거래일 예측"
     )
 
     st.write(
@@ -1496,7 +1509,7 @@ elif page == "예측 모델 결과":
     # --------------------------------------------------------
 
     st.success(
-        "최종 모델: XGBoost + 주가 기술지표"
+        "기존 실험의 선택 모델: XGBoost + 주가 기술지표"
     )
 
 
@@ -1505,7 +1518,7 @@ elif page == "예측 모델 결과":
     # --------------------------------------------------------
 
     st.subheader(
-        "모델 성능"
+        "기존 Test 112일 평가"
     )
 
     col1, col2, col3, col4 = st.columns(
@@ -1537,7 +1550,7 @@ elif page == "예측 모델 결과":
 
         st.metric(
             "테스트 ROC-AUC",
-            f"{TEST_ROC_AUC * 100:.2f}%"
+            f"{TEST_ROC_AUC:.4f}"
         )
 
 
@@ -1549,7 +1562,7 @@ elif page == "예측 모델 결과":
 
         st.metric(
             "테스트 Macro F1",
-            f"{TEST_MACRO_F1 * 100:.2f}%"
+            f"{TEST_MACRO_F1:.4f}"
         )
 
     with col2:
@@ -1561,8 +1574,8 @@ elif page == "예측 모델 결과":
 
 
     st.warning(
-        "최종 모델의 테스트 정확도는 "
-        "단순히 더 많이 등장한 방향만 예측하는 기준 모델보다 낮았습니다. "
+        "기존 선택 모델의 Test 정확도 49.11%와 균형 정확도 48.14%는 "
+        "상승 고정 기준 모델의 정확도 54.46%, 균형 정확도 50.00%보다 낮았습니다. "
         "따라서 안정적인 일반화 예측력을 확보했다고 보기는 어렵습니다."
     )
 
@@ -1694,7 +1707,7 @@ elif page == "예측 모델 결과":
 
     else:
 
-        predicted_text = "하락"
+        predicted_text = "비상승"
 
 
     if actual_class == 1:
@@ -1703,7 +1716,7 @@ elif page == "예측 모델 결과":
 
     else:
 
-        actual_text = "하락"
+        actual_text = "비상승"
 
 
     col1, col2, col3 = st.columns(
@@ -1771,6 +1784,121 @@ elif page == "예측 모델 결과":
 # 분석의 한계
 # ============================================================
 
+elif page == "추가 실험: 1·5거래일":
+    st.header("추가 실험: 1·5거래일 예측 비교")
+    st.write(
+        "예측 기간을 늘리면 뉴스 변수의 기여가 달라지는지 확인했습니다. "
+        "노트북에서 실행한 후속 실험의 저장된 결과를 보여줍니다."
+    )
+    st.caption(
+        "두 기간에 같은 입력 날짜를 사용했습니다. 기존 Test 112일과는 "
+        "표본·분할 경계 처리가 달라, 이번 108일 결과를 별도로 해석합니다."
+    )
+    horizon = st.radio("예측 기간", [1, 5],
+                       format_func=lambda h: f"{h}거래일 뒤", horizontal=True)
+    results = horizon_table("test_results.csv")
+    validation = horizon_table("validation_results.csv")
+    splits = horizon_table("split_summary.csv")
+    effects = horizon_table("validation_news_effect.csv")
+    chosen = results.loc[results["Horizon"] == horizon].copy()
+
+    st.subheader("실험 설계")
+    st.write(
+        "현재 종가 대비 미래 종가가 상승하면 1, 보합·하락이면 0입니다. "
+        "기술지표만 사용하는 조합과 기술지표에 뉴스 감성을 더한 조합에서 "
+        "각각 3개 모델을 비교했습니다. 키워드는 이번 추가 실험에서 제외했습니다."
+    )
+    split_view = splits.loc[splits["Horizon"] == horizon].copy()
+    split_view["Up_Ratio"] = split_view["Up_Ratio"].map(lambda v: f"{v:.2%}")
+    st.dataframe(split_view.drop(columns="Horizon").rename(columns={
+        "Split": "구분", "Rows": "표본 수", "Start_Date": "입력 시작일",
+        "End_Date": "입력 종료일", "Latest_Label_Date": "마지막 정답 기준일",
+        "Up_Ratio": "상승 비율"
+    }), hide_index=True, use_container_width=True)
+    st.caption(
+        "5거래일 정답 기간이 다음 분할에 걸치는 관측치는 제외했습니다. "
+        "5거래일 실험은 매일 계산한 향후 수익률 예측이며, 주별 1행 집계와 다릅니다."
+    )
+
+    st.subheader("Validation에서 선택한 모델")
+    models = chosen.loc[chosen["Model"] != "DummyClassifier"].copy()
+    selection = models[["Feature_Set", "Model", "Validation_BA"]].copy()
+    selection["Validation_BA"] = selection["Validation_BA"].map(lambda v: f"{v:.2%}")
+    st.dataframe(selection.rename(columns={
+        "Feature_Set": "변수 조합", "Model": "선택 모델",
+        "Validation_BA": "Validation 균형 정확도"
+    }), hide_index=True, use_container_width=True)
+    st.caption("각 변수 조합의 Validation 균형 정확도 1위 모델을 Train 학습 상태로 Test 평가했습니다.")
+
+    st.subheader("Test 성능 비교")
+    display_results = chosen[["Feature_Set", "Model", "Accuracy", "Balanced_Accuracy",
+                              "Macro_F1", "ROC_AUC", "BA_Delta_vs_Baseline_pp"]].copy()
+    for column in ["Accuracy", "Balanced_Accuracy"]:
+        display_results[column] = display_results[column].map(lambda v: f"{v:.2%}")
+    for column in ["Macro_F1", "ROC_AUC"]:
+        display_results[column] = display_results[column].map(lambda v: f"{v:.4f}")
+    display_results["BA_Delta_vs_Baseline_pp"] = display_results["BA_Delta_vs_Baseline_pp"].map(
+        lambda v: f"{v:+.2f}%p")
+    st.dataframe(display_results.rename(columns={
+        "Feature_Set": "변수 조합", "Model": "모델", "Accuracy": "정확도",
+        "Balanced_Accuracy": "균형 정확도", "Macro_F1": "Macro F1", "ROC_AUC": "ROC-AUC",
+        "BA_Delta_vs_Baseline_pp": "기준 대비 균형 정확도 차이"
+    }), hide_index=True, use_container_width=True)
+    st.caption(
+        "기준 모델은 각 기간 Train의 다수 클래스인 상승을 모든 날에 예측합니다. "
+        "정확도·균형 정확도는 %, Macro F1·ROC-AUC는 0~1로 표시합니다."
+    )
+    chart = chosen.set_index("Feature_Set")[["Balanced_Accuracy"]].mul(100)
+    st.bar_chart(chart.rename(columns={"Balanced_Accuracy": "Test 균형 정확도 (%)"}))
+
+    if horizon == 5:
+        st.info(
+            "기술지표 XGBoost의 Test 균형 정확도는 62.58%로 기준보다 12.58%p 높았습니다. "
+            "일반 정확도는 62.96%로 기준보다 0.93%p 높았습니다."
+        )
+        st.write(
+            "5거래일 전체 Validation 1위는 뉴스 포함 Logistic Regression(62.78%)이었으나, "
+            "Test 균형 정확도는 53.64%로 낮아졌습니다. "
+            "Test에서 더 좋았다는 이유로 최종 모델을 XGBoost로 재선택하지 않았습니다."
+        )
+    else:
+        st.info(
+            "뉴스 포함 Logistic Regression의 Test 균형 정확도는 58.41%, "
+            "기술지표 XGBoost는 51.60%였습니다. "
+            "두 변수 조합은 알고리즘도 달라, 차이를 뉴스만의 효과로 해석할 수 없습니다."
+        )
+
+    st.subheader("같은 모델에서 뉴스 변수 추가 효과")
+    effect_view = effects.loc[effects["Horizon"] == horizon].copy()
+    for column in ["기술지표만", "기술지표+뉴스감성"]:
+        effect_view[column] = effect_view[column].map(lambda v: f"{v:.2%}")
+    effect_view["News_Effect_pp"] = effect_view["News_Effect_pp"].map(lambda v: f"{v:+.2f}%p")
+    st.dataframe(effect_view.drop(columns="Horizon").rename(columns={
+        "Model": "모델", "News_Effect_pp": "뉴스 추가 효과"
+    }), hide_index=True, use_container_width=True)
+    st.caption("Validation 균형 정확도 비교입니다. 양수는 뉴스 추가 후 개선, 음수는 하락을 뜻합니다.")
+
+    with st.expander("전체 Validation 결과"):
+        val_view = validation.loc[validation["Horizon"] == horizon].copy()
+        for column in ["Accuracy", "Balanced_Accuracy"]:
+            val_view[column] = val_view[column].map(lambda v: f"{v:.2%}")
+        for column in ["Macro_F1", "ROC_AUC"]:
+            val_view[column] = val_view[column].map(lambda v: f"{v:.4f}")
+        st.dataframe(val_view.drop(columns="Horizon"), hide_index=True, use_container_width=True)
+
+    st.subheader("해석 범위")
+    st.write(
+        "기존 Test를 본 뒤 설계한 후속 탐색 실험이며, 새 독립 표본의 검증은 아닙니다. "
+        "5거래일 수익률은 인접 날짜끼리 기간이 겹칩니다. "
+        "개선의 지속성과 뉴스 변수의 기여는 새 기간에서 추가 검증해야 합니다."
+    )
+    st.download_button(
+        "전체 Test 결과 CSV 다운로드",
+        data=HORIZON_CSV["test_results.csv"].encode("utf-8-sig"),
+        file_name="horizon_test_results.csv", mime="text/csv"
+    )
+
+
 elif page == "분석의 한계":
 
     st.header(
@@ -1800,8 +1928,11 @@ elif page == "분석의 한계":
     **4. 기간 단위 분석의 표본 수 차이**  
     일간 750개, 주간 157개, 월간 36개, 분기 12개로 분석했으며, 특히 분기 분석은 표본 수가 적어 장기 흐름을 확인하는 보조 분석으로 해석해야 합니다.
 
-    **5. 제한적인 예측 성능**  
-    최종 모델의 테스트 정확도는 49.11%, 균형 정확도는 48.14%로 기준 모델 정확도 54.46%보다 낮았습니다. 따라서 실제 투자 의사결정이나 실시간 매매 예측에 사용할 수준의 모델은 아닙니다.
+    **5. 기존 실험과 후속 실험의 구분**  
+    기존 선택 모델의 Test 정확도·균형 정확도는 각각 49.11%·48.14%로, 기준의 54.46%·50.00%보다 낮았습니다. 추가 실험은 기존 Test를 확인한 뒤 설계한 탐색 분석으로, 새 독립 표본에서의 검증은 아닙니다.
+
+    **6. 겹치는 예측 기간과 일반화 범위**  
+    5거래일 수익률은 인접 날짜끼리 기간이 겹칩니다. 단일 종목과 Test 구간에서 관찰한 성능이므로 새 기간에서의 재검증이 필요합니다.
     """
     )
 # --------------------------------------------------------
@@ -1818,9 +1949,11 @@ elif page == "분석의 한계":
 
         - **기간 단위 분석:** 일간뿐 아니라 주간·월간·분기 단위로 데이터를 통합하여 주가 수익률, 뉴스 기사 수, 뉴스 감성의 흐름을 비교했습니다.
 
-        - **모델 선택:** 여러 모델과 변수 조합을 비교한 결과, **XGBoost와 주가 기술지표만 사용한 조합**이 검증 데이터에서 가장 높은 균형 정확도를 기록했습니다.
+        - **기존 모델 선택:** 여러 모델과 변수 조합을 비교한 결과, **XGBoost와 주가 기술지표만 사용한 조합**이 검증 데이터에서 가장 높은 균형 정확도를 기록했습니다.
 
-        - **예측 성능:** 최종 테스트에서는 단순 기준 모델보다 낮은 정확도를 보여 다음 거래일의 상승·하락 방향을 안정적으로 예측하는 데에는 한계가 있었습니다.
+        - **기존 예측 성능:** 선택 모델의 Test 정확도·균형 정확도는 기준 모델보다 낮았습니다.
+
+        - **추가 실험:** 5거래일 기술지표 XGBoost의 Test 균형 정확도는 62.58%였습니다. 다만 Validation 1위 뉴스 포함 모델은 Test에서 53.64%로 낮아져, 뉴스 변수의 안정적인 기여는 확인하지 못했습니다.
         """
     )
 
