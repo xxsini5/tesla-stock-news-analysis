@@ -24,6 +24,10 @@ The intended user is a market research analyst exploring Tesla's price and news 
 
 ## Tableau dashboard
 
+[Download the Tableau workbook (.twbx)](Tesla_Analytics_Portfolio.twbx?raw=true)
+
+Open the downloaded workbook in Tableau to explore date filters, navigation and tooltips.
+
 ### Market & News Overview
 
 Explore price returns, news coverage and sentiment across a selected date range.
