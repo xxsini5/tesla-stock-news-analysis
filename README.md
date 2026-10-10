@@ -24,6 +24,20 @@ The intended user is a market research analyst exploring Tesla's price and news 
 
 ## Tableau dashboard
 
+### Market & News Overview
+
+Explore price returns, news coverage and sentiment across a selected date range.
+
+![Tesla market and news overview](market_news_overview.png)
+
+### Prediction Evaluation
+
+Compare prediction performance with the baseline and review the findings and recommended next steps.
+
+![Tesla prediction evaluation](prediction_evaluation.png)
+
+*These are static dashboard previews. Filters, navigation and tooltips are available in the Tableau workbook.*
+
 The Tableau workbook contains two linked views. A public viewing link is not yet included in this repository documentation.
 
 | View | Question it supports | Main features |
