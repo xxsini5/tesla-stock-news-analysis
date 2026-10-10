@@ -24,6 +24,8 @@ The intended user is a market research analyst exploring Tesla's price and news 
 
 ## Tableau dashboard
 
+[Explore the interactive Tableau dashboard](https://public.tableau.com/app/profile/s.oh4518/viz/Tesla_Analytics_Portfolio/MarketNewsOverview)
+
 [Download the Tableau workbook (.twbx)](Tesla_Analytics_Portfolio.twbx?raw=true)
 
 Open the downloaded workbook in Tableau to explore date filters, navigation and tooltips.
@@ -42,7 +44,7 @@ Compare prediction performance with the baseline and review the findings and rec
 
 *These are static dashboard previews. Filters, navigation and tooltips are available in the Tableau workbook.*
 
-The Tableau workbook contains two linked views. A public viewing link is not yet included in this repository documentation.
+The Tableau dashboard contains two linked views. Explore date filters, navigation and tooltips directly in your browser.
 
 | View | Question it supports | Main features |
 |---|---|---|
